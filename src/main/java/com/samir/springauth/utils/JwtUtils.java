@@ -22,7 +22,7 @@ public class JwtUtils {
 
     public String generateToken(String username) {
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + expirationTime);
+        Date expiration = new Date(now.getTime() + expirationTime * 24 * 60 * 60 * 1000);
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(now)
@@ -52,7 +52,7 @@ public class JwtUtils {
         return Jwts.parser()
                 .verifyWith(getSignInKey(secretKey))
                 .build()
-                .parseEncryptedClaims(token)
+                .parseSignedClaims(token)
                 .getPayload();
     }
 
