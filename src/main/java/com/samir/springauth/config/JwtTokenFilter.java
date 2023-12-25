@@ -1,7 +1,6 @@
 package com.samir.springauth.config;
 
 import com.samir.springauth.utils.JwtUtils;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
