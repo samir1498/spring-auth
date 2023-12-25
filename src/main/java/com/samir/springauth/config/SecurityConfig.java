@@ -8,9 +8,12 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -20,7 +23,8 @@ public class SecurityConfig {
 
     private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**"};
     private final AuthenticationProvider authenticationProvider;
-    private final HttpSessionSecurityContextRepository httpSessionSecurityContextRepository;
+
+    private final JwtTokenFilter jwtTokenFilter;
 
 
 
@@ -36,8 +40,12 @@ public class SecurityConfig {
                                 .anyRequest()
                                 .authenticated()
                 )
-                .securityContext(context -> context.securityContextRepository(httpSessionSecurityContextRepository))
-                .authenticationProvider(authenticationProvider);
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(
+                        jwtTokenFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );;
 
         return http.build();
     }
