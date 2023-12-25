@@ -1,8 +1,8 @@
 package com.samir.springauth.controllers;
 
 import com.samir.springauth.requests.LoginRequest;
+import com.samir.springauth.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,12 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
-    private final HttpSessionSecurityContextRepository httpSessionSecurityContextRepository;
-
+    private final JwtUtils jwtUtils;
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest LoginRequest,
-                        HttpServletRequest request,
-                        HttpServletResponse response){
+    public String login(@RequestBody LoginRequest LoginRequest){
         try {
             UsernamePasswordAuthenticationToken authenticationRequest =
                     new UsernamePasswordAuthenticationToken(
@@ -41,10 +37,7 @@ public class AuthController {
             SecurityContext context = SecurityContextHolder.getContext();
             context.setAuthentication(authentication);
 
-            // Save the SecurityContext in the HttpSession
-            httpSessionSecurityContextRepository.saveContext(context, request, response);
-
-            return "login success";
+            return jwtUtils.generateToken(LoginRequest.getUsername());
         } catch (AuthenticationException e) {
             return "Authentication failed";
         }
